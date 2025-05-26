@@ -19,6 +19,8 @@ interface TaskFormProps {
   onSave?: (task: TaskData) => void;
   initialData?: TaskData;
   mode?: "create" | "edit";
+  isEditing?: boolean;
+  onSubmit?: (task: TaskData) => void;
 }
 
 export interface TaskData {
@@ -40,6 +42,8 @@ const TaskForm = ({
     status: "todo" as const,
   },
   mode = "create",
+  isEditing = false,
+  onSubmit = () => {},
 }: TaskFormProps) => {
   const [taskData, setTaskData] = useState<TaskData>(initialData);
 
@@ -56,8 +60,15 @@ const TaskForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(taskData);
-    if (mode === "create") {
+
+    // Use onSubmit if provided, otherwise fall back to onSave
+    if (typeof onSubmit === "function") {
+      onSubmit(taskData);
+    } else {
+      onSave(taskData);
+    }
+
+    if (mode === "create" && !isEditing) {
       setTaskData({
         title: "",
         description: "",

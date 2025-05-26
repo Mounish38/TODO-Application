@@ -15,30 +15,37 @@ export interface Task {
 }
 
 const TaskBoard = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Complete project proposal",
-      description:
-        "Draft the initial project proposal with timeline and budget estimates",
-      priority: "high",
-      status: "todo",
-    },
-    {
-      id: "2",
-      title: "Research competitors",
-      description: "Analyze top 5 competitors in the market",
-      priority: "medium",
-      status: "inProgress",
-    },
-    {
-      id: "3",
-      title: "Update portfolio",
-      description: "Add recent projects to online portfolio",
-      priority: "low",
-      status: "completed",
-    },
-  ]);
+  // Initialize tasks from localStorage or use default tasks
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    if (savedTasks) {
+      return JSON.parse(savedTasks);
+    }
+    return [
+      {
+        id: "1",
+        title: "Complete project proposal",
+        description:
+          "Draft the initial project proposal with timeline and budget estimates",
+        priority: "high",
+        status: "todo",
+      },
+      {
+        id: "2",
+        title: "Research competitors",
+        description: "Analyze top 5 competitors in the market",
+        priority: "medium",
+        status: "inProgress",
+      },
+      {
+        id: "3",
+        title: "Update portfolio",
+        description: "Add recent projects to online portfolio",
+        priority: "low",
+        status: "completed",
+      },
+    ];
+  });
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -71,6 +78,8 @@ const TaskBoard = () => {
     );
 
     setTasks(updatedTasks);
+    // Save to localStorage
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   };
 
   const addTask = (task: Omit<Task, "id">) => {
@@ -78,20 +87,29 @@ const TaskBoard = () => {
       ...task,
       id: Date.now().toString(),
     };
-    setTasks([...tasks, newTask]);
+    const updatedTasks = [...tasks, newTask];
+    setTasks(updatedTasks);
+    // Save to localStorage
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
     setIsDialogOpen(false);
   };
 
   const updateTask = (updatedTask: Task) => {
-    setTasks(
-      tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
+    const updatedTasks = tasks.map((task) =>
+      task.id === updatedTask.id ? updatedTask : task,
     );
+    setTasks(updatedTasks);
+    // Save to localStorage
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
     setEditingTask(null);
     setIsDialogOpen(false);
   };
 
   const deleteTask = (id: string) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+    const updatedTasks = tasks.filter((task) => task.id !== id);
+    setTasks(updatedTasks);
+    // Save to localStorage
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   };
 
   const handleEditTask = (task: Task) => {
